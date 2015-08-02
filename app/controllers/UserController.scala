@@ -18,7 +18,7 @@ class UserController @Inject() (
     with HasDatabaseConfigProvider[JdbcProfile]
     with I18nSupport {
   // memo @Inject...DI機能の利用(Play2.4から導入)
-  // memo with...traitをmix-inするための記法
+  // memo with...traitをmix-inするための記法(class ChildClass extends ParentClass with TraitA with TraitB)
 
   /**
    * 一覧表示
