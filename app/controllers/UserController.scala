@@ -11,6 +11,28 @@ import models.Tables._
 import javax.inject.Inject
 import scala.concurrent.Future
 import slick.driver.H2Driver.api._
+import java.lang.Number
+
+/*  memo:
+ *  オブジェクト ... シングルトンオブジェクト。静的なメソッドやメンバーを定義する。
+ *  コンパニオンオブジェクト ... クラスと同じファイル内に同じ名前で定義されたオブジェクト。
+ *                          クラス・オブジェクト間で互いにprivateなメンバーにアクセスできる
+ */
+object UserController {
+
+  // memo: ケースクラス ... イミュータブルなオブジェクトを作るのに便利なので、JavaBean的な使い方をすることが多い。
+  // フォームの値を格納するケースクラス
+  case class UserForm(id: Option[Long], name: String, companyId: Option[Int])
+
+  // formから送信されたデータ⇔クラスの変換を行う
+  val userForm = Form(
+    mapping(
+      "id" -> optional(longNumber),
+      "name" -> nonEmptyText(maxLength = 20),
+      "companyId" -> optional(number))(UserForm.apply)(UserForm.unapply))
+
+}
+
 
 class UserController @Inject() (
   val dbConfigProvider: DatabaseConfigProvider,
@@ -23,7 +45,13 @@ class UserController @Inject() (
   /**
    * 一覧表示
    */
-  def list = TODO
+  def list = Action.async { implicit rs =>
+    // IDの昇順にすべてのユーザ情報を取得
+    db.run(Users.sortBy(t => t.id).result).map { users =>
+      // 一覧画面を表示
+      Ok(views.html.user.list(users))
+    }
+  }
 
   /**
    * 編集画面表示
