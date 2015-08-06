@@ -47,6 +47,9 @@ class UserController @Inject() (
   /**
    * 一覧表示
    */
+  // memo: 「def メソッド名 = 本体」 この記法の場合、呼び出し時に()をつけない
+  // memo: 無名関数「パラメータ => 本体」例：(x: Int) => x * x
+
   def list = Action.async { implicit rs =>
     // IDの昇順にすべてのユーザ情報を取得
     db.run(Users.sortBy(t => t.id).result).map { users =>
