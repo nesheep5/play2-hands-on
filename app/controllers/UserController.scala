@@ -12,6 +12,8 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import slick.driver.H2Driver.api._
 import java.lang.Number
+// コンパニオンオブジェクトに定義したFormを参照するためにimport文を追加
+import UserController._
 
 /*  memo:
  *  オブジェクト ... シングルトンオブジェクト。静的なメソッドやメンバーを定義する。
@@ -56,7 +58,32 @@ class UserController @Inject() (
   /**
    * 編集画面表示
    */
-  def edit(id: Option[Long]) = TODO
+  /*
+   *  memo:
+   *  Option ... 値があるかないかを表す型。SomeかNoneを返す。
+   *  Some ... 値があることを表す型。Optionのサブクラス。
+   *  None ... 値がないことを表す型。Optionのサブクラス。
+   */
+  def edit(id: Option[Long]) = Action.async { implicit rs =>
+    // リクエストパラメータにIDが存在する場合
+    val form = if(id.isDefined) {
+      // IDからユーザ情報を1件取得
+      db.run(Users.filter(t => t.id === id.get.bind).result.head).map { user =>
+        // 値をフォームに詰める
+        userForm.fill(UserForm(Some(user.id), user.name, user.companyId))
+      }
+    }else{
+      // リクエストパラメータにIDが存在しない場合
+      Future { userForm }
+    }
+    form.flatMap { form =>
+      // 会社一覧を取得
+      // memo: SELECT * FROM COMPANIES ORDER BY ID
+      db.run(Companies.sortBy(_.id).result).map { companies =>
+        Ok(views.html.user.edit(form, companies))
+      }
+    }
+  }
 
   /**
    * 登録実行
