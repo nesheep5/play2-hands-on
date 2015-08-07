@@ -91,7 +91,26 @@ class UserController @Inject() (
   /**
    * 登録実行
    */
-  def create = TODO
+  def create = Action.async {implicit rs =>
+    // リクエストの内容をバインド
+    userForm.bindFromRequest.fold(
+      // エラーの場合
+        error => {
+          db.run(Companies.sortBy(t => t.id).result).map { companies =>
+            BadRequest(views.html.user.edit(error, companies))
+          }
+        },
+        // OKの場合
+        form => {
+          // ユーザを登録
+          val user = UsersRow(0, form.name, form.companyId)
+          db.run(Users += user).map { _ =>
+            // 一覧画面へリダイレクト
+            Redirect(routes.UserController.list)
+          }
+        }
+    )
+  }
 
   /**
    * 更新実行
