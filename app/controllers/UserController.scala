@@ -104,6 +104,7 @@ class UserController @Inject() (
         form => {
           // ユーザを登録
           val user = UsersRow(0, form.name, form.companyId)
+          // memo: INSERT INTO USERS (ID, NAME, COMPANY_ID) VALUES (?, ?, ?)
           db.run(Users += user).map { _ =>
             // 一覧画面へリダイレクト
             Redirect(routes.UserController.list)
@@ -128,6 +129,7 @@ class UserController @Inject() (
         form => {
           // ユーザ情報を更新
           val user = UsersRow(form.id.get, form.name, form.companyId)
+          // memo: UPDATE USERS SET NAME = ?, COMPANY_ID = ? WHERE ID = ?
           db.run(Users.filter(t => t.id === user.id.bind).update(user)).map { _ =>
             // 一覧画面にリダイレクト
             Redirect(routes.UserController.list)
