@@ -10,6 +10,7 @@ import javax.inject.Inject
 import scala.concurrent.Future
 import slick.driver.H2Driver.api._
 
+// memo: play2が提供するJSONライブラリ(内部的にはJavaのJacksonを利用)
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
