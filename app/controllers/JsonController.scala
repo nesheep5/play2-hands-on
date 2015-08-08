@@ -14,6 +14,18 @@ import slick.driver.H2Driver.api._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
+/** コンパニオンオブジェクト */
+object JsonController {
+  // UserRowをJSONに変換するためWritesを定義
+  // memo: オブジェクト→JSON変換は Writes
+  implicit val UserRowWritesWrites = (
+      // memo: 「__」は JsPath のエイリアス
+    (__ \ "id"       ).write[Long]   and
+    (__ \ "name"     ).write[String] and
+    (__ \ "companyId").writeNullable[Int]
+  )(unlift(UsersRow.unapply))
+}
+
 class JsonController @Inject()(val dbConfigProvider: DatabaseConfigProvider)
     extends Controller
     with HasDatabaseConfigProvider[JdbcProfile] {
